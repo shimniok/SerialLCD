@@ -131,11 +131,11 @@ void SerialLCD::rightToLeft() {
 }
 
 void SerialLCD::scrollLeft() {
-
+  command(LCD_SCROLLLEFT);
 }
 
 void SerialLCD::scrollRight() {
-
+	command(LCD_SCROLLRIGHT);
 }
 
 void SerialLCD::blink(){

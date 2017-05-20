@@ -44,6 +44,9 @@ Note -	This library requires SoftSerialTx library at http://github.com/shimniok/
 #define LCD_SETSPLASHSCREEN	0x0A
 #define LCD_SPLASHTOGGLE    0x09
 #define LCD_RETURNHOME      0x02
+#define LCD_SCROLLLEFT	    0x18
+#define LCD_SCROLLRIGHT     0x1C
+
 
 // Flags for display entry mode
 #define LCD_ENTRYRIGHT      0x00
