@@ -79,20 +79,27 @@ void SerialLCD::clear(){
 	command(LCD_CLEARDISPLAY);
 }
 
-// Clears a single line by writing blank spaces then returning
-// cursor to beginning of line
-void SerialLCD::clearLine(int num){
-	if(num > 0 && num <= _numlines){
-		setCursor(num, 1);
-		print("                ");
-		setCursor(num, 1);
-	}
+// Set cursor to specific row and col values start count at 0
+void SerialLCD::setCursor(int row, int col){
+	uint8_t position;
+  if (row >= 0 && row <= 3) {
+      position = col + _rowoffsets[row];
+  }
+	command(LCD_SETDDRAMADDR|position);
+}
+
+void SerialLCD::left() {
+	command(LCD_CURSORLEFT);
+}
+
+void SerialLCD::right() {
+	command(LCD_CURSORRIGHT);
 }
 
 // Moves cursor to the beginning of selected line
-void SerialLCD::selectLine(int num){
-	if(num > 0 && num <= _numlines){
-		setCursor(num, 1);
+void SerialLCD::selectLine(int row){
+	if(row >= 0 && row <= _numlines){
+		setCursor(row, 0);
 	}
 }
 
@@ -123,47 +130,45 @@ void SerialLCD::rightToLeft() {
 	command(LCD_ENTRYMODESET | _displaymode);
 }
 
-// Blinking cursor on/off
+void SerialLCD::scrollLeft() {
+
+}
+
+void SerialLCD::scrollRight() {
+
+}
+
 void SerialLCD::blink(){
 	_displaycontrol |= LCD_BLINKON;
 	command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
+
 void SerialLCD::noBlink(){
 	_displaycontrol &= ~LCD_BLINKON;
 	command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
 
-// Underline cursor on/off
 void SerialLCD::cursor(){
 	_displaycontrol |= LCD_CURSORON;
 	command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
+
 void SerialLCD::noCursor(){
 	_displaycontrol &= ~LCD_CURSORON;
 	command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
+
 void SerialLCD::display(){
 	_displaycontrol |= LCD_DISPLAYON;
 	command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
+
 void SerialLCD::noDisplay(){
 	_displaycontrol &= ~LCD_DISPLAYON;
 	command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
 
-// Set cursor to specific row and col values start count at 0
-void SerialLCD::setCursor(int row, int col){
-	uint8_t position;
-  if (row >= 0 && row <= 3) {
-      position = col + _rowoffsets[row];
-  }
-	command(LCD_SETDDRAMADDR|position);
-}
-
-// Creates custom characters 8 char limit
-// Input values start with 1
 void SerialLCD::createChar(int location, uint8_t charmap[]){
-	location -= 1;
 	location &= 0x07;
   for (int i=0; i<8; i++){
     command(LCD_SETCGRAMADDR | (location << 3) | i);
@@ -173,18 +178,20 @@ void SerialLCD::createChar(int location, uint8_t charmap[]){
 
 // Prints custom character
 // Input values start with 1
-void SerialLCD::printCustomChar(int num){
-	write((num - 1));
+void SerialLCD::printCustomChar(int location){
+	write((location));
 }
 
 // PRIVATE FUNCTIONS
 
-// Functions for sending the special command values
+// Send HD44780 command
 void SerialLCD::command(uint8_t value){
 	write(0xFE);
 	write(value);
 	delay(5);
 }
+
+// Send special command
 void SerialLCD::specialCommand(uint8_t value){
 	write(0x7C);
 	write(value);

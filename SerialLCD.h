@@ -34,7 +34,8 @@ Note -	This library requires SoftSerialTx library at http://github.com/shimniok/
 // Commands
 #define LCD_BACKLIGHT       0x80
 #define LCD_CLEARDISPLAY	  0x01
-#define LCD_CURSORSHIFT		  0x10
+#define LCD_CURSORLEFT		  0x10
+#define LCD_CURSORRIGHT     0x14
 #define LCD_DISPLAYCONTROL  0x08
 #define LCD_ENTRYMODESET    0x04
 #define LCD_FUNCTIONSET     0x20
@@ -67,44 +68,141 @@ Note -	This library requires SoftSerialTx library at http://github.com/shimniok/
 
 class SerialLCD : public SoftSerialTx {
 public:
+
+	/**
+	 * Creates a SerialLCD object, transmitting via pin
+	 */
 	SerialLCD(int pin);
 
+	/**
+	 * Clear display
+	 */
 	void clear();
-	void clearLine(int);
-	void home();
-	void setBrightness(int);
 
+	/**
+	 * Move cursor to home position
+	 */
+	void home();
+
+	/**
+	 * Set backlight brightness
+	 */
+	void setBrightness(int val);
+
+	/**
+	 * Define the start up splash screen
+	 */
 	void setSplash();
+
+	/**
+	 * Turn on/off the splash screen on startup
+	 */
 	void toggleSplash();
 
+	/**
+	 * Enable cursor Blinking
+	 */
 	void blink();
+
+	/**
+	 * Disable cursor blinking
+	 */
 	void noBlink();
+
+	/**
+	 * Disable cursor blinking
+	 */
 	void cursor();
+
+	/**
+	 * Disable cursor blinking
+	 */
 	void noCursor();
+
+	/**
+	 * Disable cursor blinking
+	 */
 	void display();
+
+	/**
+	 * Disable cursor blinking
+	 */
 	void noDisplay();
 
-	void setCursor(int, int);
-	void selectLine(int);
+	/**
+	 * Set position of cursor
+	 */
+	void setCursor(int row, int col);
 
+	/**
+	 * Move cursor left
+	 */
+	void left();
+
+	 /**
+ 	 * Move cursor right
+ 	 */
+  void right();
+
+	/**
+	 * Move cursor to beginning of specified row
+	 */
+	void selectLine(int row);
+
+	/**
+	 * Set autoscroll direction left to right
+	 */
 	void leftToRight();
+
+	/**
+	 * Set autoscroll direction right to left
+	 */
 	void rightToLeft();
+
+	/**
+	 * Enable autoscroll
+	 */
 	void autoscroll();
+
+	/**
+	 * Disable autoscroll
+	 */
 	void noAutoscroll();
 
-	void createChar(int, uint8_t[]);
-	void printCustomChar(int);
+	/**
+	 * Scroll entire screen left
+	 */
+	void scrollLeft();
+
+	/**
+	 * Scroll entire screen right
+	 */
+	void scrollRight();
+
+	/**
+	 * Create a custom character; 8 char limit, location starts with 0
+	 * Charmap represents an 5x8 dot matrix bitmap
+	 */
+	void createChar(int location, uint8_t charmap[]);
+
+	/**
+	 * Display a custom character at location
+	 */
+	void printCustomChar(int location);
 
 private:
-	void command(uint8_t);
+	// Send command specified by value; automatically prefixed by 0xFE
+	void command(uint8_t value);
+
+	// Send special command; automatically prefixed by 0x7C
 	void specialCommand(uint8_t);
 
-	uint8_t _rowoffsets[4];
+	uint8_t _rowoffsets[4];	   // Row offsets used for setCursor()
 	uint8_t _displayfunction;
-	uint8_t _displaycontrol;
+	uint8_t _displaycontrol;	 // Display control bitfield
 	uint8_t _displaymode;
-	uint8_t _numlines;
-	uint8_t _numcols;
+	uint8_t _numlines;         // Number of rows/lines in the display
+	uint8_t _numcols;          // Number of columns in the display
 };
 
 #endif
