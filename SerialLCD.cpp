@@ -32,8 +32,11 @@ SerialLCD::SerialLCD(int pin) : SoftSerialTx(pin) {
 	pinMode(pin, OUTPUT);
 	begin(9600);
 	_numlines = LCD_2LINE;
-	_numchars = LCD_16CHAR;
-	_rowoffset = 0;
+	_numcols = LCD_16CHAR;
+	_rowoffsets[0] = 0x00;
+	_rowoffsets[1] = 0x40;
+	_rowoffsets[2] = 0x00 + 0x27;
+	_rowoffsets[3] = 0x40 + 0x27;
 }
 
 /* Initialize.. not used trying to implement all display sizes
@@ -139,8 +142,6 @@ void SerialLCD::noCursor(){
 	_displaycontrol &= ~LCD_CURSORON;
 	command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
-
-// Display on/off
 void SerialLCD::display(){
 	_displaycontrol |= LCD_DISPLAYON;
 	command(LCD_DISPLAYCONTROL | _displaycontrol);
@@ -150,15 +151,13 @@ void SerialLCD::noDisplay(){
 	command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
 
-// Set cursor to specific row and col values start at 1 not 0
+// Set cursor to specific row and col values start count at 0
 void SerialLCD::setCursor(int row, int col){
-	int row_offsets[2][4] = {
-		{ 0x00, 0x40, 0x10, 0x50 },
-		{ 0x00, 0x40, 0x14, 0x54 }
-	};
-	if((row > 0 && row < 3) && (col > 0 && col < 17)){
-           command(LCD_SETDDRAMADDR | ((col - 1) + row_offsets[_rowoffset][(row - 1)]));
-	}
+	uint8_t position;
+  if (row >= 0 && row <= 3) {
+      position = col + _rowoffsets[row];
+  }
+	command(LCD_SETDDRAMADDR|position);
 }
 
 // Creates custom characters 8 char limit
